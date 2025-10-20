@@ -1,0 +1,12 @@
+package com.samjhadoo.model.enums.gamification;
+
+public enum BadgeType {
+    ONBOARDING,
+    FIRST_SESSION_COMPLETED,
+    TEN_SESSIONS_COMPLETED,
+    HUNDRED_SESSIONS_COMPLETED,
+    FIVE_STAR_MENTOR,
+    COMMUNITY_CHAMPION,
+    STREAK_MASTER,
+    REFERRAL_CHAMPION
+}

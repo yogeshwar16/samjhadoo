@@ -1,0 +1,95 @@
+package com.samjhadoo.service;
+
+import com.samjhadoo.exception.ResourceNotFoundException;
+import com.samjhadoo.model.Session;
+import com.samjhadoo.model.User;
+import com.samjhadoo.model.WebRTCSession;
+import com.samjhadoo.repository.SessionRepository;
+import com.samjhadoo.repository.UserRepository;
+import com.samjhadoo.repository.WebRTCSessionRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class WebRTCService {
+
+    private final SimpMessagingTemplate messagingTemplate;
+    private final SessionRepository sessionRepository;
+    private final UserRepository userRepository;
+    private final WebRTCSessionRepository webRTCSessionRepository;
+
+    @Transactional
+    public void handleSignalingMessage(String sessionId, String senderId, Object message) {
+        // Verify the session exists and the sender is a participant
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
+
+        User sender = userRepository.findById(Long.parseLong(senderId))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!isParticipant(session, senderId)) {
+            throw new SecurityException("User is not a participant in this session");
+        }
+
+        // Determine the recipient (the other participant)
+        String recipientId = session.getMentor().getId().equals(Long.parseLong(senderId)) ? 
+                session.getMentee().getId().toString() : session.getMentor().getId().toString();
+
+        // Forward the signaling message to the recipient
+        messagingTemplate.convertAndSendToUser(
+                recipientId,
+                "/queue/signal",
+                message
+        );
+    }
+
+    @Transactional
+    public WebRTCSession createOrGetSession(String sessionId, String userId) {
+        return webRTCSessionRepository.findBySessionIdAndUserId(sessionId, userId)
+                .orElseGet(() -> {
+                    WebRTCSession webrtcSession = new WebRTCSession();
+                    webrtcSession.setId(UUID.randomUUID().toString());
+                    webrtcSession.setSessionId(sessionId);
+                    webrtcSession.setUserId(userId);
+                    webrtcSession.setSdpOffer(null);
+                    webrtcSession.setIceCandidates(null);
+                    return webRTCSessionRepository.save(webrtcSession);
+                });
+    }
+
+    @Transactional
+    public void saveICECandidate(String sessionId, String userId, String candidate) {
+        WebRTCSession webrtcSession = webRTCSessionRepository.findBySessionIdAndUserId(sessionId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("WebRTC session not found"));
+        
+        webrtcSession.addIceCandidate(candidate);
+        webRTCSessionRepository.save(webrtcSession);
+    }
+
+    @Transactional
+    public void saveSDP(String sessionId, String userId, String sdp) {
+        WebRTCSession webrtcSession = webRTCSessionRepository.findBySessionIdAndUserId(sessionId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("WebRTC session not found"));
+        
+        webrtcSession.setSdpOffer(sdp);
+        webRTCSessionRepository.save(webrtcSession);
+    }
+
+    @Transactional
+    public void cleanupSession(String sessionId, String userId) {
+        log.info("Cleaning up WebRTC session {} for user {}", sessionId, userId);
+        webRTCSessionRepository.deleteBySessionIdAndUserId(sessionId, userId);
+    }
+
+    private boolean isParticipant(Session session, String userId) {
+        return session.getMentor().getId().equals(Long.parseLong(userId)) || 
+               session.getMentee().getId().equals(Long.parseLong(userId));
+    }
+}

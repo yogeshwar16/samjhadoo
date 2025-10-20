@@ -1,0 +1,148 @@
+package com.samjhadoo.service;
+
+import com.samjhadoo.dto.notification.NotificationDTO;
+import com.samjhadoo.exception.ResourceNotFoundException;
+import com.samjhadoo.model.Notification;
+import com.samjhadoo.model.User;
+import com.samjhadoo.model.enums.NotificationType;
+import com.samjhadoo.repository.NotificationRepository;
+import com.samjhadoo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class NotificationServiceImpl implements NotificationService {
+
+    private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
+    private final JavaMailSender mailSender;
+
+    @Override
+    @Transactional
+    public NotificationDTO createNotification(User recipient, NotificationType type, String message,
+                                            String actionUrl, Map<String, String> metadata) {
+        Notification notification = new Notification();
+        notification.setRecipient(recipient);
+        notification.setType(type);
+        notification.setMessage(message);
+        notification.setActionUrl(actionUrl);
+        if (metadata != null) {
+            notification.setMetadata(metadata);
+        }
+
+        notification = notificationRepository.save(notification);
+        log.debug("Created notification for user: {}", recipient.getId());
+
+        return toDTO(notification);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<NotificationDTO> getUserNotifications(Long userId, Pageable pageable) {
+        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId, pageable)
+                .map(this::toDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<NotificationDTO> getUnreadNotifications(Long userId, Pageable pageable) {
+        return notificationRepository.findByRecipientIdAndReadFalseOrderByCreatedAtDesc(userId, pageable)
+                .map(this::toDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getUnreadCount(Long userId) {
+        return notificationRepository.countByRecipientIdAndReadFalse(userId);
+    }
+
+    @Override
+    @Transactional
+    public void markAsRead(Long notificationId, User user) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+
+        if (!notification.getRecipient().getId().equals(user.getId())) {
+            throw new SecurityException("You cannot mark this notification as read");
+        }
+
+        notification.setRead(true);
+        notification.setReadAt(LocalDateTime.now());
+        notificationRepository.save(notification);
+    }
+
+    @Override
+    @Transactional
+    public void markAllAsRead(Long userId) {
+        Page<Notification> unreadNotifications = notificationRepository
+                .findByRecipientIdAndReadFalseOrderByCreatedAtDesc(userId, Pageable.unpaged());
+
+        unreadNotifications.forEach(notification -> {
+            notification.setRead(true);
+            notification.setReadAt(LocalDateTime.now());
+        });
+
+        notificationRepository.saveAll(unreadNotifications.getContent());
+    }
+
+    @Override
+    @Async
+    public void sendEmailNotification(User recipient, String subject, String body) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(recipient.getEmail());
+            message.setSubject(subject);
+            message.setText(body);
+            message.setFrom("noreply@samjhadoo.com");
+
+            mailSender.send(message);
+            log.info("Email sent to: {}", recipient.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send email to: {}", recipient.getEmail(), e);
+        }
+    }
+
+    @Override
+    public void sendVerificationRequestNotification(String userId) {
+        User user = userRepository.findById(Long.parseLong(userId))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        createNotification(
+                user,
+                NotificationType.GENERAL,
+                "Your verification request has been submitted and is under review.",
+                "/profile/verification",
+                null
+        );
+
+        sendEmailNotification(
+                user,
+                "Verification Request Submitted",
+                "Your verification request has been submitted and is under review. You will be notified once it's processed."
+        );
+    }
+
+    private NotificationDTO toDTO(Notification notification) {
+        return NotificationDTO.builder()
+                .id(notification.getId())
+                .type(notification.getType())
+                .message(notification.getMessage())
+                .actionUrl(notification.getActionUrl())
+                .read(notification.isRead())
+                .createdAt(notification.getCreatedAt())
+                .readAt(notification.getReadAt())
+                .build();
+    }
+}

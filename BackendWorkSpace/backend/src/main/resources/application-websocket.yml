@@ -1,0 +1,98 @@
+# WebSocket Configuration
+app:
+  websocket:
+    enabled: true
+    endpoint: /ws
+    app-destination-prefix: /app
+    user-destination-prefix: /user
+    allowed-origins:
+      - "http://localhost:3000"  # Add your frontend URL(s) here
+      - "https://your-production-domain.com"
+    broker:
+      simple-broker: true
+      destination-prefixes: 
+        - /topic
+        - /queue
+      heartbeat: [10000, 10000]  # [incoming, outgoing] in milliseconds
+    stomp:
+      relay-enabled: false  # Set to true in production with external broker
+      relay-host: localhost
+      relay-port: 61613
+      relay-login: guest
+      relay-passcode: guest
+      heartbeat: true
+
+# Monitoring and Metrics
+management:
+  endpoint:
+    websocket:
+      enabled: true
+    metrics:
+      enabled: true
+  metrics:
+    enable:
+      web:
+        server:
+          request: true
+    distribution:
+      percentiles:
+        websocket.message.processing.time: 0.5,0.75,0.95,0.99
+      percentiles-histogram:
+        websocket.message.processing.time: true
+    export:
+      prometheus:
+        enabled: true
+        step: 1m
+        descriptions: true
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework.web.socket: INFO
+    org.springframework.messaging: INFO
+    com.samjhadoo.websocket: DEBUG
+    com.samjhadoo.monitoring: DEBUG
+
+# Production-specific overrides
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+app:
+  websocket:
+    allowed-origins:
+      - "https://your-production-domain.com"
+    stomp:
+      relay-enabled: true
+      relay-host: "${RABBITMQ_HOST:rabbitmq}"
+      relay-port: ${RABBITMQ_STOMP_PORT:61613}
+      relay-login: "${RABBITMQ_USER:guest}"
+      relay-passcode: "${RABBITMQ_PASSWORD:guest}"
+
+# Development-specific overrides
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+app:
+  websocket:
+    allowed-origins: "*"
+    broker:
+      simple-broker: true
+    stomp:
+      relay-enabled: false
+
+# Test-specific overrides
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+app:
+  websocket:
+    enabled: false

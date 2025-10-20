@@ -1,0 +1,33 @@
+package com.samjhadoo.config;
+
+import com.samjhadoo.service.WebRTCService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.stereotype.Component;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class WebRTCEventListener {
+
+    private final WebRTCService webRTCService;
+
+    @EventListener
+    public void handleWebSocketSubscribeEvent(SessionSubscribeEvent event) {
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        log.debug("New WebSocket subscription: {}", headerAccessor.getSessionId());
+    }
+
+    @EventListener
+    public void handleWebSocketDisconnectEvent(SessionDisconnectEvent event) {
+        String sessionId = event.getSessionId();
+        log.info("WebSocket session ended: {}", sessionId);
+        
+        // Clean up any WebRTC sessions associated with this WebSocket session
+        // Note: You might want to implement additional logic to map WebSocket sessions to WebRTC sessions
+    }
+}

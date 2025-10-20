@@ -1,0 +1,53 @@
+groups:
+- name: ai-matching-alerts
+  rules:
+  # Alert for high error rate
+  - alert: HighErrorRate
+    expr: |
+      (
+        sum(rate(ai_matching_failures_total[5m])) by (instance)
+        /
+        sum(rate(ai_matching_requests_total[5m])) by (instance)
+      ) * 100 > 5
+    for: 5m
+    labels:
+      severity: 'critical'
+      team: 'ai'
+    annotations:
+      summary: "High error rate on {{ $labels.instance }}"
+      description: "Error rate is {{ $value }}% for the last 5 minutes"
+
+  # Alert for high latency
+  - alert: HighMatchingLatency
+    expr: |
+      histogram_quantile(0.95, sum(rate(ai_matching_duration_seconds_bucket[5m])) by (le, instance)) > 2
+    for: 10m
+    labels:
+      severity: 'warning'
+      team: 'ai'
+    annotations:
+      summary: "High matching latency on {{ $labels.instance }}"
+      description: "95th percentile matching latency is {{ $value }}s"
+
+  # Alert for service down
+  - alert: AIMatchingServiceDown
+    expr: up{job="spring-actuator"} == 0
+    for: 5m
+    labels:
+      severity: 'critical'
+      team: 'ai'
+    annotations:
+      summary: "AI Matching Service is down (instance {{ $labels.instance }})"
+      description: "The service has been down for more than 5 minutes"
+
+  # Alert for high request rate
+  - alert: HighRequestRate
+    expr: |
+      sum(rate(ai_matching_requests_total[5m])) by (instance) > 1000
+    for: 5m
+    labels:
+      severity: 'warning'
+      team: 'ai'
+    annotations:
+      summary: "High request rate on {{ $labels.instance }}"
+      description: "Request rate is {{ $value }} req/s for the last 5 minutes"

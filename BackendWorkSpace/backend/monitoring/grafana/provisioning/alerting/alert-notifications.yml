@@ -1,0 +1,43 @@
+# Alert notification channels configuration
+apiVersion: 1
+
+# List of notification channels that should be pre-configured
+delete_notification_channels: true  # Set to false to preserve existing channels
+
+notifications:
+  # Email notification channel
+  - name: 'Email Alerts'
+    type: email
+    settings:
+      addresses: "dev-team@samjhadoo.com"
+      singleEmail: true
+      uploadImage: true
+    sendReminder: true
+    frequency: "15m"
+    disableResolveMessage: false
+    
+  # Slack notification channel
+  - name: 'Slack Alerts'
+    type: slack
+    uid: 'slack-alerts'
+    settings:
+      url: '${SLACK_WEBHOOK_URL}'
+      token: '${SLACK_TOKEN}'
+      recipient: '#alerts'
+      username: 'Samjhadoo Alerts'
+      icon_emoji: ':warning:'
+      uploadImage: true
+    sendReminder: true
+    frequency: "15m"
+    disableResolveMessage: false
+
+  # Webhook for custom integrations
+  - name: 'Webhook Alerts'
+    type: webhook
+    uid: 'webhook-alerts'
+    settings:
+      url: '${ALERT_WEBHOOK_URL}'
+      httpMethod: 'POST'
+      username: '${ALERT_WEBHOOK_USER}'
+      password: '${ALERT_WEBHOOK_PASSWORD}'
+      disableResolveMessage: false

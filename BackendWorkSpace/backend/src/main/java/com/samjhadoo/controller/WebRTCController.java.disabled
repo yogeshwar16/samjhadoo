@@ -1,0 +1,74 @@
+package com.samjhadoo.controller;
+
+import com.samjhadoo.service.WebRTCService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+
+import java.security.Principal;
+import java.util.Map;
+
+@Slf4j
+@Controller
+@RequiredArgsConstructor
+public class WebRTCController {
+
+    private final WebRTCService webRTCService;
+
+    @MessageMapping("/signal/{sessionId}")
+    @SendToUser("/queue/signal")
+    public void handleSignal(
+            @DestinationVariable String sessionId,
+            Map<String, Object> signal,
+            Principal principal,
+            @Header("simpSessionId") String sessionIdHeader) {
+        
+        String userId = principal.getName();
+        log.debug("Received signal from user {} for session {}", userId, sessionId);
+        
+        webRTCService.handleSignalingMessage(sessionId, userId, signal);
+    }
+
+    @MessageMapping("/webrtc/offer/{sessionId}")
+    public void handleOffer(
+            @DestinationVariable String sessionId,
+            String sdp,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
+        String userId = userDetails.getUsername();
+        log.debug("Received SDP offer from user {} for session {}", userId, sessionId);
+        
+        webRTCService.createOrGetSession(sessionId, userId);
+        webRTCService.saveSDP(sessionId, userId, sdp);
+    }
+
+    @MessageMapping("/webrtc/ice-candidate/{sessionId}")
+    public void handleICECandidate(
+            @DestinationVariable String sessionId,
+            String candidate,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
+        String userId = userDetails.getUsername();
+        log.debug("Received ICE candidate from user {} for session {}", userId, sessionId);
+        
+        webRTCService.saveICECandidate(sessionId, userId, candidate);
+    }
+
+    @MessageMapping("/webrtc/end-call/{sessionId}")
+    public void endCall(
+            @DestinationVariable String sessionId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
+        String userId = userDetails.getUsername();
+        log.info("Ending WebRTC session {} for user {}", sessionId, userId);
+        
+        // Clean up WebRTC session data
+        webRTCService.cleanupSession(sessionId, userId);
+    }
+}

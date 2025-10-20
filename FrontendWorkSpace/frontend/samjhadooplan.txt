@@ -1,0 +1,940 @@
+## 📝 GitHub Copilot prompt — Samjhadoo.com Phase 1 MVP (multi‑platform, fully descriptive)
+
+```markdown
+# GitHub Copilot Prompt: Samjhadoo.com — Phase 1 MVP (Android, iOS, Web, Java backend, AI, Ads, Privacy)
+
+We are building Samjhadoo.com, a mentorship + friendly talk platform. This prompt defines explicit, unambiguous responsibilities for Android (Java), iOS (Swift), Web (React.js), Java Backend (Spring Boot), AI Integration (Master AI + Agentic AI), Ads, Notifications, Privacy, Localization, and Admin Panel. Follow the specifications exactly to avoid deviations.
+
+System must support:
+- Java backend app (Spring Boot 3+, REST APIs, JWT auth, PostgreSQL for transactional data, MongoDB for chats/sessions/replays)
+- Android app in Java (Material Design 3, Retrofit, WebRTC SDK, Firebase Auth/FCM, AdMob)
+- iOS app in Swift (SwiftUI + Combine, WebRTC, Firebase/Auth, APNs, AdMob iOS)
+- Web app in React.js (Material UI, Google apps–like UX, AdSense/Prebid.js)
+- Privacy policy compliance (GDPR, HIPAA, DPDP-ready)
+- Open source APIs/services (WebRTC, Firebase Auth/FCM, Stripe/Razorpay, OAuth2, OpenAI-compatible APIs)
+
+---
+
+## Platform responsibilities with detailed requirements
+
+### 📱 Android app (Java + Material Design 3)
+- **Landing & Onboarding:**
+  - Provide a splash screen, followed by 2–3 intro pages that clearly explain core features: live video/audio mentorship, instant mentor advice, friendly talk for loneliness/anxiety (no clinical medical claims), and safety.
+  - Show intent prompt: “What brings you here today?” with options: Learn Something | Share Expertise | Friendly Talk.
+  - Implement login via Google, LinkedIn, Facebook (OAuth). If social login not available or user declines, fallback to mobile OTP via Firebase. Ensure failure-safe UX and clear error messages.
+  - Profile completion must collect: Name, Age, Gender, Auto-detected Location (with user permission; allow manual override), Language(s), Interests (multi-select), Short-term Goals, Long-term Goals. Persist all fields in backend profile API.
+  - If admin enables verification, trigger selfie capture and ID upload flow; perform AI-assisted match (backend result required before enabling monetized features). Show user privacy notice and consent explicitly.
+
+- **Mentee features:**
+  - Dashboard must show personalized mentor suggestions based on skills, interests, goals, urgency, rating, availability, and price. Include quick filters and a search bar with filters: skill, price/free, rating, urgency.
+  - Session type selector: Skill Help or Friendly Talk; store selection to tailor matching and UI.
+  - Booking flow for 15/30/60-min slots: check mentor availability, show timezone-aware slots, confirm booking, and provide calendar add. Handle cancellations/rescheduling per backend policy.
+  - Live sessions: WebRTC video/audio, optional screen share, real-time notes (saved to backend), replay if both parties consent. Handle network changes gracefully; show reconnect UI.
+  - Urgency tagging (Casual | Soon | ASAP) must influence match priority and sorting.
+  - AI assistance: 
+    - Master AI (freemium) can answer FAQs, propose mentors, offer nudges, and do basic emotional check-ins.
+    - Agentic AI (premium) performs advanced matching, session prep (agenda, links), and post-session insights (action items).
+  - AI-powered discovery: surface trending topics and suggested queries (e.g., “DSA prep for interviews,” “resume review,” “mock interview”) aligned with mentee interests/skill gaps. 
+  - Notifications: Firebase FCM for session reminders, booking updates, follow-ups, and personalized nudges.
+  - Payments: support freemium, pay-per-session, festival discounts, and tier/city-based pricing via Stripe/Razorpay SDK. Display GST/fees clearly before payment.
+
+- **Mentor features:**
+  - Onboarding collects skills (tagged taxonomy), hourly rate (min/max constraints), bio, availability windows, and Motivator opt-in (friendly talk support).
+  - Dashboard displays revenue, calendar with availability management, session history with filters, reviews with moderation status, and a “trending mentee queries” widget relevant to mentor’s skills.
+  - Session tools include session timer, screen share, collaborative notes, and replay toggle (consent required). 
+  - AI Mentor Assistant proposes session talking points and prep material (links, checklists) before each session.
+  - Rewards & gamification: badges and tier progression (e.g., “Startup Whisperer”) triggered by milestones (sessions completed, rating thresholds).
+  - Notifications for bookings, new reviews, payouts processed, and new offer plans to earn.
+
+- **Friendly Talk module:**
+  - Mood onboarding asks current emotional state (Lonely, Curious, Anxious, Excited, Just browsing) and preferences (gender, age range, language, cultural affinity).
+  - Dashboard tabs: Talk Now, Find a Friend, My Circle, Mood Themes, Confession Corner.
+  - Matching logic uses mood + interests + availability; if no match, place request in a queue and notify when a mentor/motivator becomes available.
+  - Chat interface supports text/audio/video, an anonymous toggle (hide real name), and report/block features. Provide clear safety UI and escalation path.
+  - Drop-in audio rooms for casual motivation (moderated). Provide room topic, participant count, moderation tools (mute/kick/report).
+  - AI moderation pre-screens for harmful content; do emotional check-ins during long chats.
+
+- **Ads:**
+  - Integrate AdMob SDK for banner ads (non-intrusive at dashboard bottom), interstitial ads (post-booking confirmation only), and rewarded ads (unlock extra friendly talk minutes or limited premium trial).
+  - Implement frequency control and consent gating: show ads only if user consented; premium plan removes ads entirely.
+
+- **Privacy:**
+  - First-launch consent screen covering data collection, cookies, analytics, ads, and AI assistance. Log consent status and timestamp with userId.
+  - Settings must include: opt-out of ads personalization, request data download, request account deletion, notification frequency controls, language/theme selection.
+  - Show link to Privacy Policy page and localized notice. No personalized ads without explicit consent.
+
+- **Limited admin on mobile (ops subset):**
+  - Approve/reject mentors (view documents and basic profile), with comments.
+  - View flagged users/content; apply quick actions (warn, temporary suspend, escalate).
+  - Quick dispute resolution (approve refund, escalate to web admin).
+  - Push urgent announcements to specific segments (region, role, language).
+
+---
+
+### 🍏 iOS app (Swift + SwiftUI + Combine)
+- **Parity with Android feature set** using SwiftUI:
+  - Onboarding: multi-page intro, intent prompt, Sign in with Apple plus Google/LinkedIn/Facebook; OTP fallback via Firebase; profile completion; optional selfie-ID verification when enabled.
+  - Mentee features: dashboard, filters + search, AI matching, booking (15/30/60), live sessions via WebRTC (integrate CallKit for native calling UX), urgency tagging, AI nudges, APNs notifications via Firebase, payments via Stripe/Razorpay SDKs with Apple HIG-compliant flows.
+  - Mentor features: onboarding, calendar & availability, revenue, reviews, session tools, AI mentor assistant, badges/tiers, notifications.
+  - Friendly Talk: mood onboarding, preferences, tabs and chat (text/audio/video with AVFoundation), drop-in audio rooms with moderation, AI safety checks.
+  - Ads: AdMob iOS banners/interstitial/rewarded with consent and frequency control; premium removes ads.
+  - Privacy: first-launch consent, settings for opt-out/data rights, privacy policy link.
+  - Mobile admin subset: same limited ops as Android. 
+  - UX: Follow Apple Human Interface Guidelines; keep design language consistent with Material 3 where possible (spacing, clarity, accessibility).
+
+---
+
+### 💻 Web app (React.js + Material UI)
+- **Landing pages (3 pages):**
+  - Page 1: tagline “Stop Googling. Start Solving. Get a Mentor.” with primary CTAs (Explore Mentorship, Friendly Talk, Corporate Solutions). Responsive hero, simple value props.
+  - Page 2: explain core features (video calls, instant mentor advice, friendly talk for loneliness/anxiety, safety layers). Use iconography and short copy blocks; avoid heavy text.
+  - Page 3: deeper details (how matching works, pricing, trust & verification, privacy and compliance). Include secondary CTAs to onboarding.
+- **Onboarding:**
+  - Intent prompt (Learn Something | Share Expertise | Friendly Talk).
+  - OAuth login (Google, LinkedIn, Facebook). Fallback OTP via Firebase if needed.
+  - Profile completion form: identical fields to mobile; validation and save via backend.
+  - Optional selfie + ID verification if admin enables; show clear consent and secure upload.
+- **Mentee & Mentor dashboards:**
+  - Mentee: suggested mentors grid/list with filters/search, urgency tag, quick booking, session history, receipts, AI suggested queries.
+  - Mentor: onboarding manager, revenue insights, availability calendar (drag-to-set), session history, review moderation status, trending queries, AI assistant panel.
+  - Live sessions: WebRTC-based calls in browser; notes and replay management; consent confirmations UI.
+- **Friendly Talk module (web):**
+  - Mood onboarding and preference collection; tabs (Talk Now, Find a Friend, My Circle, Mood Themes, Confession Corner).
+  - Chat interface with text/audio/video; anonymous toggle; safety/report tools; moderation dashboards for room hosts.
+- **Admin panel (web-only, full control):**
+  - User management: mentor vetting & approval queue (admin can set auto-approve or manual), role access, motivator flagging. Role-based access (admin/moderator).
+  - Review moderation: AI pre-screen for inappropriate/adult content; actions include remove user, warn, temporary suspend.
+  - Analytics:
+    - Core metrics: mentee/mentor counts, session breakdowns, revenue, CAC vs LTV.
+    - Detailed reports: by city, time of day, day of week, mentor, mentee, topic, resolution rate.
+    - Trends: skill gaps, session type breakdown (skill help vs friendly talk), demand vs supply mismatch heatmaps.
+  - Platform ops: commission logic control, pricing by tier/city, disputes dashboard, KPI tracking.
+  - Content control: replay library access and approvals; review moderation queue.
+  - Notifications & messaging: campaign scheduler, performance analytics (open, click-through, conversion).
+  - AI assistance: Market Radar, Mentor Gap Alerts, Recruitment Automation, Content Suggestions (trending topics for profit), User Guidance Agent, seasonal/festival offer packs.
+  - Income plan controls: toggle monthly income plans for mentors (post-profit trigger).
+  - Regional analytics: language adoption rates, tagline and theme performance by region.
+  - AI-driven notification engine: e.g., “new mentors onboarded in <trending category>”.
+  - Notification performance dashboard: show open rate, CTR, session conversions per campaign (e.g., “interview tips” = 45% engagement, “business ideas” = 62%).
+- **Ads (web):**
+  - Integrate AdSense or Prebid.js for banners/native ads. Placement: dashboard sidebar, Knowledge Hub, community feed. Strict frequency control (max 2 per session flow).
+  - Respect consent and premium plan (ad-free).
+- **Privacy (web):**
+  - Dedicated Privacy Policy page (footer and onboarding links). Consent banner for cookies/ads. Settings page for opt-out, data download, and delete requests.
+
+---
+
+## Java backend (Spring Boot) — APIs, data, and services
+
+- **Authentication & roles:**
+  - JWT-based auth, OAuth2 providers (Google, LinkedIn, Facebook).
+  - Roles: mentee, mentor, motivator, moderator, admin, premium.
+- **User management & verification:**
+  - Endpoints to create/update profiles; fields as above.
+  - Verification endpoints: upload selfie + ID; AI verification service returns match status and confidence; store audit logs.
+- **Mentor/mentee matching & discovery:**
+  - Matching API that takes filters (skill, price/free, rating, urgency), user profile context, and returns ranked mentors.
+  - Discovery API returns trending topics and suggested queries (from AI + analytics).
+- **Booking & sessions:**
+  - Booking endpoints for slot creation, reschedule, cancel, confirm; respect mentor availability. Timezone handling mandatory.
+  - Session service for WebRTC signaling (token exchange), notes storage, replay consent tracking and storage pointers (S3-compatible or similar).
+- **Payments:**
+  - Integrate Stripe/Razorpay: intents, confirmations, refunds. Pricing engine supports tier/city-based pricing and festival discounts. Store receipts and payout logs.
+- **Notifications:**
+  - Push service endpoints for FCM/APNs/Web; campaign scheduler for admin; logs for delivery/open/click/conversion.
+- **Ads service:**
+  - Ad config endpoint returns allowed ad placements/types/frequency per role/plan/region.
+  - Logging endpoints for impressions, clicks, rewards usage; premium users must receive ad-free configs.
+- **AI gateway & logs:**
+  - `/api/ai/master` for freemium; `/api/ai/agentic` for premium. Middleware enforces role, rate limit, and logs requests/responses to AI Logs DB.
+  - Fallback logic routes to Master AI on failure.
+- **Analytics:**
+  - Aggregate stats for sessions, revenue, demand/supply heatmaps, regional adoption. Export endpoints for admin reports.
+- **Data model guidance:**
+  - PostgreSQL (Users, Profiles, Mentors, Sessions, Bookings, Payments, Ads, Campaigns, Analytics aggregates).
+  - MongoDB (Chats, SessionNotes, Replays metadata, AI Logs).
+- **Dev practices:**
+  - Spring Security + JWT, Hibernate/JPA, Swagger/OpenAPI, SLF4J logging, ELK integration, JUnit + Mockito tests, layered architecture (Controller → Service → Repository).
+
+---
+
+## AI integration layer — behavior and safeguards
+
+- **Master AI (freemium):**
+  - Provides FAQs, mentor suggestions, lightweight nudges, emotional check-ins. Limited depth and rate-limited; never makes final decisions without user confirmation.
+- **Agentic AI (premium):**
+  - Advanced matching: weighs urgency, skill fit, availability, rating, price, and user goals.
+  - Session prep: agenda and resource suggestions tailored to user’s query and mentor’s background.
+  - Post-session insights: concise summary, action items, recommended next steps (e.g., “Practice DSA 3x/week; schedule mock interview Thursday”).
+- **AI matching & discovery:**
+  - Surfaces trending skills/topics and suggested queries regionally and globally. Must be explainable (show why a mentor was suggested).
+- **AI mentor assistant:**
+  - Offers structured talking points and resources before sessions; keeps a neutral, non-clinical tone.
+- **AI moderation:**
+  - Pre-screens friendly talk and reviews; flags potential harm; routes to moderator if needed. Never provides medical or legal advice.
+- **Localization & dynamic theming:**
+  - Smart language detection (telecom/IP/GPS with user permission), user-select language override, minimal dropdown with global toggle. Full UI translation for supported languages. Dynamic taglines and themes around festivals/events (colors, banners, micro-animations) with safe defaults.
+- **Integration rules:**
+  - Use AI Gateway service; log all interactions; enforce premium access for Agentic AI; fallback to Master AI on errors; admin monitoring for usage, failure rates, and cost controls.
+
+---
+
+## Notifications — design and controls
+
+- **Context-aware notifications:**
+  - Tailor content by user background, budget, location, interests, and session history.
+- **UX behavior:**
+  - Low animations/flash; avoid spammy patterns. Provide frequency controls in settings.
+- **Performance analytics:**
+  - Track open rates, CTR, and conversions. Example targets: “interview tips” notifications achieve ~45% engagement; “business ideas” ~62% (use as sample test goals, not hard-coded).
+- **Compliance:**
+  - Respect consent settings; provide opt-out. Localize content and time windows.
+
+---
+
+## Ads — smart & non-intrusive
+
+- **Principles:**
+  - Contextual ads; blend into feed/session suggestions; no popups; frequency capped (admin-configurable, e.g., max 2 per session flow).
+  - Ads must feel like recommendations, not interruptions; never gate essential features behind ads.
+- **Android/iOS:**
+  - AdMob SDK banners (dashboard), interstitials (post-booking), rewarded (extra minutes). Consent required; premium plan removes ads.
+- **Web:**
+  - AdSense or Prebid.js banners/native ads in sidebar, Knowledge Hub, community feed. Respect consent and premium plan.
+- **Admin controls:**
+  - Campaign management, targeting rules, frequency caps, analytics (CTR, revenue, eCPM). Store ad performance logs for dashboards.
+
+---
+
+## Privacy & compliance — mandatory behaviors
+
+- **Transparency:**
+  - Show clear disclosures of data collected and purpose across onboarding and settings.
+- **User rights:**
+  - Provide UI to download data and request deletion. Confirm before irreversible actions.
+- **Security:**
+  - End-to-end encryption for chats/calls where feasible; transport encryption (TLS) mandatory; secure payment handling; redact sensitive PII in logs.
+- **Compliance:**
+  - GDPR, HIPAA, DPDP-ready. No personalized ads without explicit consent. Localize privacy notices. Store consent status (userId, consentStatus, timestamp, channel).
+- **Privacy policy page:**
+  - Must be accessible from onboarding, footer (web), and settings (mobile). Include ad disclosures and AI assistance disclosures.
+
+---
+
+## Development guidelines per platform
+
+- **Android (Java):**
+  - Java 11+, AndroidX, Jetpack; Material Design 3; MVVM with ViewModel + LiveData; Retrofit + OkHttp; Room DB; WebRTC; Firebase Auth/FCM; AdMob; JUnit + Espresso; strict null-safety and lifecycle handling; Google-style UX (clean, minimal, accessible).
+
+- **iOS (Swift):**
+  - Swift 5+, SwiftUI + Combine; MVVM; URLSession/Alamofire; Core Data; WebRTC + CallKit; Firebase Auth/APNs; AdMob iOS; XCTest + XCUITest; follow Apple HIG; parity with Android features and UX principles.
+
+- **Web (React.js):**
+  - React 18+; Material UI (MUI v5); Redux Toolkit or Context API; React Router; WebRTC; Firebase/service worker for web push; AdSense/Prebid.js; Jest + RTL; accessible, responsive, Google apps–like UX.
+
+- **Backend (Spring Boot):**
+  - Spring Boot 3+; Spring Security + JWT; OAuth2; PostgreSQL + Hibernate/JPA; MongoDB for chat/session artifacts; Swagger/OpenAPI; SLF4J + ELK; JUnit + Mockito; layered architecture; microservices advisable for auth, sessions, payments, AI, ads; comprehensive logging and rate-limiting on AI endpoints,pricing.
+
+- **AI layer:**
+  - AI Gateway service (Java microservice or Node.js); endpoints `/api/ai/master`, `/api/ai/agentic`; log interactions to AI Logs DB; enforce role-based access; implement retries + graceful degradation; use OpenAI-compatible APIs; mock AI responses for tests; cost monitoring.
+
+---
+
+## Copilot generation tasks (deliverables)
+
+- **Backend (Spring Boot):** Controllers/Services/Repositories/DTOs for auth, profiles, verification, matching, discovery, booking, sessions (WebRTC signaling, notes, replay), payments, notifications, ads config/logs, AI gateway, analytics. Swagger docs and integration tests stubs.
+- **Android (Java):** Complete onboarding flows, mentee/mentor dashboards, filters & search, booking flow, WebRTC session UI, notes and replay consent dialogs, AI panels, friendly talk module with rooms, FCM notifications, AdMob integration with consent, privacy settings, limited admin ops screens.
+- **iOS (SwiftUI):** Mirror Android features with SwiftUI screens and Combine view models; implement CallKit integration for sessions; APNs; AdMob iOS; privacy settings and admin limited ops.
+- **Web (React.js):** 3 landing pages, onboarding flow, mentee/mentor dashboards, session UI with notes/replay, friendly talk module, full admin panel (all controls and analytics), ads integration (AdSense/Prebid), privacy page and consent banner.
+- **Data models:** User, Profile, Mentor, Availability, Session, Booking, Payment, Review, ChatMessage, SessionNote, Replay, Notification, Campaign, AdPlacement, AdLog, AIInteraction, ConsentLog.
+- **Utilities:** AI routing and fallback, urgency weighting and ranking, session prep generator, post-session summary composer, notification scheduler, pricing engine (tier/city + festivals), ads frequency control, verification audit logger.
+- **Quality:** Add comments explaining logic; ensure modular, testable code; use linting and formatting standards; prioritize accessibility and performance; avoid duplication across platforms while preserving native UX.
+```
+---
+///////////////////////////////
+
+
+---
+
+## 📝 GitHub Copilot Prompt – Pricing Engine for Samjhadoo.com
+
+```markdown
+# GitHub Copilot Prompt: Pricing Engine for Samjhadoo.com
+
+We are building **Samjhadoo.com**, a mentorship + friendly talk platform.  
+We need a **Pricing Engine** that is deterministic, auditable, and fully controlled by Admin. Copilot must generate backend code (Spring Boot Java), DB schema, APIs, services, DTOs, test stubs, and Admin UI components (React.js) to manage pricing.  
+
+---
+
+## 🎯 Objectives
+- Calculate session prices based on tiers, mentor rates, regional multipliers, surge rules, promos, commission, taxes, and credits.
+- Provide **calc endpoint** for preview and **confirm endpoint** for booking with immutable snapshot.
+- Allow Admin to manage all pricing rules (tiers, overrides, multipliers, promos, commission).
+- Store audit logs for every pricing change and booking confirmation.
+- Ensure compliance with GDPR/DPDP: no hidden charges, transparent breakdown.
+
+---
+
+## 📊 Pricing Model
+1. **Base Tiers**: Bronze, Silver, Gold with hourly rates (e.g., 300/600/1200 INR).
+2. **Slot Pricing**: price = hourly_rate * slot_minutes / 60.
+3. **Mentor Overrides**: mentors can set rates within admin-defined min/max; admin can override directly.
+4. **Regional Multipliers**: adjust price by city/region (e.g., Metro 1.2x, Tier-2 1.0x).
+5. **Surge Pricing**: apply multiplier when demand > supply for skill/region; capped by admin.
+6. **Promos/Discounts**: percentage or fixed, scheduled by admin (e.g., Diwali 10% off).
+7. **Agentic AI Add-on**: premium users can add AI fee (fixed or %).
+8. **Commission & Taxes**: platform commission deducted; GST/tax added as line item.
+9. **Credits/Rewards**: rewarded ads or gamification credits can reduce price.
+
+---
+
+## 🗄️ Data Models (PostgreSQL + JPA Entities)
+- **PricingTier**: id, name, hourly_rate, min_rate, max_rate, active.
+- **MentorPricing**: mentor_id, base_rate, enforced_by_admin, effective_from/to.
+- **RegionalMultiplier**: region_code, multiplier, effective_from/to.
+- **SurgeRule**: skill_id, region_code, demand_threshold, multiplier, cap_multiplier.
+- **PromoRule**: id, name, type (PERCENTAGE|FIXED), value, regions[], start_dt, end_dt.
+- **CommissionPolicy**: id, percent, tiers[], start_dt, end_dt.
+- **SessionPriceBreakdown**: session_id, mentor_rate, slot_minutes, multipliers, promo_applied, commission, tax, ai_fee, credits, final_price.
+- **PricingAuditLog**: actor, action, entity, before, after, reason, timestamp.
+
+---
+
+## 🔌 Backend APIs (Spring Boot)
+### Public
+- **POST /api/pricing/calc**  
+  Input: { mentorId, slotMinutes, region, skillId, userPlan, date, useAgenticAI, credits }  
+  Output: SessionPriceBreakdown JSON with explain[] lines.  
+- **POST /api/pricing/confirm**  
+  Input: { breakdownToken, userId, bookingDetails }  
+  Output: BookingId + immutable price snapshot.
+
+### Admin
+- **/api/admin/pricing/tiers** (CRUD)  
+- **/api/admin/pricing/mentor/{id}** (override rates)  
+- **/api/admin/pricing/regional-multiplier** (CRUD)  
+- **/api/admin/pricing/surge** (CRUD)  
+- **/api/admin/pricing/promo** (CRUD)  
+- **/api/admin/pricing/commission** (CRUD)  
+- **/api/admin/pricing/audit** (list logs)  
+- **/api/admin/pricing/simulate** (what-if preview)
+
+---
+
+## 🖥️ Admin UI (React.js + Material UI)
+- **Pricing Dashboard**: list tiers, edit rates, toggle active.
+- **Mentor Override Screen**: search mentor, set enforced rate, show history.
+- **Regional Multiplier Editor**: set multipliers per city/region.
+- **Surge Rules Manager**: define thresholds, multipliers, caps.
+- **Promo Calendar**: create promos, schedule start/end, preview effect.
+- **Commission & Tax Screen**: set commission %, tax rules.
+- **What-If Simulator**: input mentor/slot/region → preview breakdown.
+- **Audit Log Viewer**: show before/after diffs, reasons, timestamps.
+
+---
+
+## 📱 Frontend Behavior (Android/iOS/Web)
+- Always call `/api/pricing/calc` before booking; show full breakdown (mentor rate, multipliers, promos, commission, tax, AI fee, credits).
+- Confirm booking only after `/api/pricing/confirm` returns immutable snapshot.
+- Mentor dashboards show expected earnings after commission.
+- Premium users see Agentic AI add-on option with price.
+
+---
+
+## 🛡️ Safeguards
+- Immutable booking snapshots; no retroactive changes.
+- Surge multipliers capped; overrides logged with reason.
+- Promos cannot stack unless admin enables stacking.
+- All admin changes require `reason` and are logged.
+- Rounding rules consistent (nearest rupee/cent).
+
+---
+
+## 📈 Monitoring & Alerts
+- Metrics: avg_session_price, calc_error_rate, surge_trigger_rate, promo_use_rate, agentic_ai_attach_rate.
+- Alerts: >20% spike in avg price, surge > cap, calc errors >1%.
+
+---
+
+## ✅ Copilot Tasks
+- Generate Spring Boot entities, repositories, services, controllers, DTOs, Swagger docs.
+- Generate Flyway migrations for pricing tables.
+- Generate React Admin UI components for pricing management.
+- Generate unit tests for pricing logic (tiers, promos, surge, overrides).
+- Generate integration tests for booking flow (calc → confirm).
+- Generate monitoring hooks (Prometheus metrics).
+- Generate audit log persistence and viewer.
+
+---
+
+## 🔒 Non-Functional Requirements
+- Use BigDecimal for currency math (no floats).  
+- All APIs idempotent and deterministic.  
+- Internationalization: currency/locale formatting.  
+- Performance: /api/pricing/calc <200ms under load.  
+- Compliance: GDPR/DPDP — transparent breakdown, consent for promos/ads.  
+```
+
+---
+
+
+
+////////////////////////
+
+
+### Community Pricing Engine Module
+
+**Eligible Communities:**
+- Students (verified via .edu email, ID card, or Aadhaar student tag).
+- Women/Girls (self-declared, optional verification).
+- Farmers (verified via Kisan ID, Aadhaar, or self-declaration).
+- Senior Citizens (optional future extension).
+
+**Discount Rules:**
+- Students: 30–40% off base pricing (₹29/10 min instead of ₹49).
+- Women/Girls: 20–30% off (₹39/10 min).
+- Farmers: 40–50% off (₹25/10 min).
+- Premium mentors may opt out, but default mentors auto‑apply discounts.
+
+**UI/UX:**
+- Show “Community Discount Applied” badge at checkout.
+- Highlight inclusivity: “Special support for Students, Women, Farmers.”
+- Encourage mentors to volunteer for discounted slots (CSR angle).
+
+**Admin Controls:**
+- Default discount slabs pre‑set.
+- Admin can adjust % per community, per region.
+- Ability to run campaigns (e.g., “Farmer Week: Free first session”).
+
+**Revenue Safeguards:**
+- Discounts funded partly by:
+  - Rewarded ads.
+  - CSR/NGO partnerships.
+  - Cross‑subsidy from premium users (₹499/999 elite sessions).
+
+/////////////////////
+
+
+---
+
+```
+### Voice Command Layer (Button‑Press Speak)
+
+**Overview:**
+- Add a microphone button on mentee and mentor dashboards.
+- When pressed, user can speak a command/query.
+- Voice input is transcribed → parsed by Master AI → routed to correct action (session booking, mentor search, AI summary, etc.).
+- Privacy-first: no background listening, only active when button is pressed.
+
+**Mentee Voice Commands:**
+- "Find me a mentor for [skill]."
+- "Book a session with [mentor name] tomorrow evening."
+- "Reschedule my session to [day/time]."
+- "Summarize my last session."
+- "I’m feeling low, connect me to friendly talk."
+
+**Mentor Voice Commands:**
+- "Mark me available for the next 2 hours."
+- "Add a note: [custom note]."
+- "Show my earnings this week."
+- "List my upcoming sessions."
+
+**System Behavior:**
+- Button press → microphone active → speech-to-text → intent classification.
+- If intent matches supported commands → execute action.
+- If unclear → AI responds: "Did you mean to [action]?"
+- Multi-language support (English + Hindi + Bengali + Tamil + Telugu, etc.).
+- All processing is session-based; no passive listening or storage beyond session logs.
+
+**UI/UX:**
+- Microphone button visible on dashboard header/footer.
+- Visual cue (waveform animation) when listening.
+- Confirmation card after action: "Session booked with [mentor]."
+- Error handling: "I didn’t catch that, please repeat."
+
+**Privacy & Compliance:**
+- Explicit consent before first use.
+- Voice data processed only for command execution.
+- No long-term storage unless user opts in for transcripts.
+```
+
+
+//////////////////////
+
+
+### Community-First Module
+
+**Purpose:**
+Make Samjhadoo inclusive, trusted, and sticky by combining community identity capture, adaptive pricing, personalized dashboards, and engagement loops.
+
+---
+
+**1. Signup & Community Tagging**
+- After basic info (Name, Email/Phone, Password, Location), ask:
+  "Tell us more about yourself to personalize your experience."
+- Options: Student, Employee/Professional, Farmer, Woman/Girl, Senior Citizen, Other/Prefer not to say.
+- Store selection as `community_tag` in user profile.
+- Verification optional, only required for discounts:
+  - Student → ID card / .edu email (optional)
+  - Farmer → Kisan ID / Aadhaar (optional)
+  - Women/Girls → self-declaration only
+  - Senior Citizen → Aadhaar DOB (optional)
+  - Employee → industry/role dropdown (no company email required)
+
+---
+
+**2. Dashboard Personalization**
+- AI curates feeds, mentors, and blogs based on `community_tag`:
+  - Students → project help, coding mentors, exam prep, career guidance.
+  - Employees → leadership mentors, productivity hacks, career growth.
+  - Farmers → agri experts, weather/market insights, vernacular content.
+  - Women/Girls → safe-space mentors, confidence-building blogs, counseling.
+  - Senior Citizens → friendly talk, wellness mentors, hobby groups.
+
+---
+
+**3. Pricing Engine Integration**
+- Base unit: 10 minutes.
+- Charm pricing: always end in 9 (₹49, ₹89, ₹129).
+- Geo-based pricing: country-wise defaults (India ₹49/10 min, US $1.49/10 min, UK £1.29/10 min).
+- City-tier pricing (India):
+  - Tier 1 (Bengaluru, Mumbai, Gurgaon): ₹59/10 min
+  - Tier 2 (Kolkata, Pune, Hyderabad): ₹49/10 min
+  - Tier 3 (Ranchi, Bhubaneswar, Indore): ₹39/10 min
+- Community discounts auto-applied:
+  - Students: 30–40% off (₹29/10 min)
+  - Women/Girls: 20–30% off (₹39/10 min)
+  - Farmers: 40–50% off (₹25/10 min)
+  - Senior Citizens: 20–30% off
+- Premium mentors may opt out; admin can override.
+- Revenue safeguards:
+  - Discounts funded by rewarded ads, CSR/NGO partnerships, and cross-subsidy from premium users (₹499/999 elite sessions).
+
+---
+
+**4. Engagement Loops**
+- Students → daily challenges, streaks, peer study circles.
+- Women/Girls → anonymous Q&A, women-only clubs, micro-sessions (₹19/5 min).
+- Farmers → vernacular voice queries, seasonal agri clubs, KVK tie-ins.
+- Employees → career dashboards, leadership challenges, corporate clubs.
+- Senior Citizens → hobby groups, wellness talks, friendly connect.
+
+---
+
+**5. Trust & Safety**
+- AI pre-coaches mentee questions to reduce hesitation.
+- Verified mentor badges (Student Mentor, Agri Mentor, Elite Mentor).
+- AI-flagged safe spaces (detect harassment, auto-block).
+- Privacy-first: no passive listening, no hidden tracking.
+- Transparency dashboard: show how many sessions subsidized for students/farmers.
+
+---
+
+**6. UI/UX**
+- Show “Community Discount Applied” badge at checkout.
+- Highlight inclusivity: “Special support for Students, Women, Farmers.”
+- Allow users to update/re-verify community status in settings.
+- Visual distinction for premium/elite mentors.
+
+---
+
+**7. Admin Controls**
+- Default geo + tier + community rules pre-set.
+- Admin can adjust discounts, add/remove communities, or run campaigns (e.g., "Farmer Week: Free First Session").
+- Ability to A/B test pricing and engagement strategies.
+
+////////////////////////////////////////////////
+
+
+---
+
+## 🧩 Smart Topic Engine, Admin‑Driven Topics & Visual Query Module
+
+```
+
+**Purpose:**
+Keep the platform dynamic, relevant, and community-aware by combining:
+- AI-driven daily topic suggestions
+- Admin-created custom/trending topics
+- Mentor adoption workflows
+- Mentee-friendly discovery UI
+- Visual queries (photos, videos, voice) with progressive activity tracking
+
+This ensures supply-demand alignment, prevents overload for mentors/admins, and gives mentees a vibrant, personalized, and practical experience.
+
+---
+
+**1. Admin Topic Creation**
+- Admin can manually create custom topics (e.g., “Class 5–10 Science Projects,” “Engineering Final Year Projects,” “Task Assignment Help,” “How to Apply Eyeliner”).
+- Topics can be tagged with:
+  - Category (Education, Career, Lifestyle, Agriculture, Wellness, etc.)
+  - Target communities (Students, Women, Farmers, Employees, etc.)
+  - Difficulty level (Basic, Intermediate, Advanced)
+  - Language/vernacular tags
+- Admin can run seasonal campaigns (e.g., “Exam Season Help,” “Kharif Crop Guidance Week”).
+
+---
+
+**2. AI Daily Topic Suggestions**
+- AI generates fresh topic ideas daily using:
+  - User queries (most asked questions, trending searches).
+  - Mentor expertise tags (areas with available supply).
+  - Seasonal/temporal context (exam season, festivals, crop cycles, job placement season).
+  - Engagement signals (topics with high clicks, conversions).
+- Suggested topics are queued in the admin dashboard.
+
+---
+
+**3. Admin Actions & Controls**
+- Admin reviews AI-suggested topics daily.
+- Options:
+  - **Approve** → topic goes live.
+  - **Modify** → edit title, tags, or description.
+  - **Reject** → remove irrelevant/low-value topics.
+- Admin can:
+  - Create, edit, archive topics.
+  - Tag topics to specific communities or regions.
+  - See analytics: mentor adoption, mentee engagement, conversion to sessions.
+- Notifications grouped by **category with counts** (e.g., "Education (3 new topics)").
+- Color-coded badges:
+  - Green = approved topics
+  - Yellow = pending review
+  - Red = rejected/flagged
+
+---
+
+**4. Mentor Onboarding Integration**
+- When a new mentor registers, they see a list of trending/admin/AI-approved topics to pick from.
+- Mentors can select which topics they want to cater to → aligns supply with demand.
+- Mentors who pick trending topics get boosted visibility in mentee searches.
+- Mentor dashboard shows **category-level notifications** (not floods).
+- Drill-down → detailed list of topics → click card for description.
+- Mentor actions:
+  - **Take It / Grab It / Include** → add topic to mentor profile and mentee matching pool.
+
+---
+
+**5. Mentee Dashboard UX Enhancements**
+- **Categorized Feeds**:
+  - Topics grouped into color-coded categories (Education = Blue, Career = Green, Lifestyle = Pink, Agriculture = Brown, Wellness = Purple).
+  - Tabs or carousels for easy navigation.
+- **Trending & Viral Highlights**:
+  - “🔥 Trending Now” strip at top of dashboard.
+  - Viral topics get animated badges (Hot, Rising, New).
+  - Seasonal campaigns shown as banners.
+- **Personalized Recommendations**:
+  - AI matches mentee profiles (`community_tag`, past queries, location) with approved topics.
+  - AI prioritizes new topics not yet explored by the mentee.
+  - Topics already covered are greyed out or marked with a check.
+  - “Continue where you left off” and “New for You” sections.
+- **Topic Cards**:
+  - Show title, short description, category color band, engagement badge.
+  - Action button: “Ask Now” / “Explore Mentors.”
+- **History & Progress Tracking**:
+  - Record of topics already covered by mentee.
+  - Dashboard highlights new topics since last login.
+  - Progress bar: “You’ve explored 7/20 trending topics this month.”
+
+---
+
+**6. Visual Query & Progressive Activity**
+- **Query Creation (Mentee):**
+  - Upload photo(s), short video (30–60 sec), or voice note.
+  - Optional text description or tags.
+  - AI auto-suggests category (e.g., Agriculture → Plant Disease).
+- **Mentor View:**
+  - Queries shown as cards with thumbnail, tags, mentee profile.
+  - On click → detailed view with media + description.
+- **Progressive Activity Tracking:**
+  - Mentees can add follow-up photos/videos to same query (e.g., “Day 1 fungus,” “Day 3 after treatment”).
+  - Mentors see timeline of updates for context.
+- **Mentor Actions:**
+  - Respond with text, voice note, or annotated image.
+  - Mark query as resolved when mentee confirms.
+- **AI Assistance:**
+  - Suggests likely categories.
+  - Flags urgent cases (e.g., “High risk of crop loss”).
+- **UI/UX Safeguards:**
+  - Mobile: “Ask with Photo/Video” button, compression for low bandwidth.
+  - Web: drag-and-drop upload, larger preview gallery.
+  - Notifications: “New visual query in Agriculture (2 new).”
+
+---
+
+**7. AI Engagement Loop**
+- AI tracks engagement (clicks, queries, sessions) per topic.
+- High-performing topics auto-promoted to “Trending.”
+- Low-engagement topics phased out or reframed.
+- AI suggests new topics to admins based on query patterns (e.g., if many students ask about “Python projects,” AI nudges admin to create a “Python Project Help” topic).
+- Continuous learning improves future daily suggestions.
+
+---
+
+**8. Strategic Advantage**
+- Giants like Google/LinkedIn rely on search + generic categories.
+- Samjhadoo wins by being curated + community-aware:
+  - Admins can seed hyper-local, hyper-specific needs.
+  - AI ensures daily freshness and relevance.
+  - Mentors align supply to demand from day one.
+  - Mentees feel “this app speaks my language and my needs.”
+- Visual queries + progressive activity make Samjhadoo uniquely practical for agriculture, crafts, projects, and lifestyle mentoring.
+- Mentors/Admins stay productive (no overload), while mentees enjoy a vibrant, personalized discovery experience.
+
+---
+
+
+//////////////////////////////////////////////
+
+
+
+## 🧩 Core App Features Module
+
+```
+
+**Purpose:**
+Provide the foundational features required for a scalable, trustworthy, and engaging mentorship platform across mobile and web apps.
+
+---
+
+**1. Onboarding & Profiles**
+- Progressive onboarding with a short walkthrough of app value.
+- Rich mentor/mentee profiles:
+  - Skills, goals, availability, languages, badges.
+  - Optional verification (KYC, ID, LinkedIn).
+- Community identity tagging integrated (Student, Farmer, Employee, etc.).
+
+---
+
+**2. Discovery & Matching**
+- for mentee Smart search & filters (skill, language, price, availability).
+- AI-powered mentor matching:
+  - Mentee fills quick form → AI suggests best mentors.
+- “Recommended for You” carousel based on community tag + past sessions.
+
+---
+
+**3. Scheduling & Session Management**
+- In-app calendar sync (Google/Outlook).
+- Slot booking with mentor availability.
+- Push/email reminders for upcoming sessions.
+- Reschedule/cancel flow with safeguards.
+
+---
+
+**4. Communication Layer**
+- In-app chat (text + attachments).
+- Voice/video calls (lightweight, mobile-first).
+- Screen share / whiteboard for project help.
+- Voice notes for async mentoring.
+
+---
+
+**5. Payments & Monetization**
+- Wallet system: mentees top-up credits.
+- Multiple payment gateways (UPI, cards, PayPal).
+- Refund/escrow system for trust.
+- Mentor payouts via bank transfer/UPI.
+- Cross-subsidy logic integrated with community discounts.
+
+---
+
+**6. Gamification & Retention**
+- Badges & streaks for mentees (learning streaks) and mentors (impact badges).
+- Leaderboards: top mentors, most active mentees.
+- Referral rewards: invite friends, earn credits.
+
+---
+
+**7. Trust, Safety & Moderation**
+- Ratings & reviews after sessions.
+- Report/block system for harassment.
+- AI moderation to flag unsafe content in chats/calls.
+- Transparency dashboard: show impact (sessions subsidized, communities supported).
+
+---
+
+**8. Analytics & Insights**
+- Mentee dashboard: progress tracking, skills learned, hours spent.
+- Mentor dashboard: earnings, impact stats, repeat mentees.
+- Admin dashboard: platform health, revenue, engagement, topic adoption.
+
+---
+
+**9. Accessibility & Inclusivity**
+- Multi-language support (vernacular UI).
+- Voice-first navigation for low-literacy users.
+- Dark/light mode for comfort.
+- Low-bandwidth mode for rural areas.
+
+---
+
+**10. Community & Social Layer**
+- Discussion forums for open questions.
+- Group mentoring sessions (small cohorts).
+- Events & webinars with experts.
+- Content hub: blogs, guides, recorded sessions.
+
+---
+
+**Strategic Advantage:**
+- Combines **foundational app features** with Samjhadoo’s unique moats (community pricing, Smart Topic Engine, trust-first design).
+- Ensures the platform is not just innovative, but also **usable, scalable, and sticky** across diverse user groups.
+```
+
+---
+
+////////////////////////////////////////////////
+
+
+---
+
+## 📱 Mobile App Content Prompt
+
+```
+You are tasked with generating concise, action-oriented content for the **Samjhadoo mobile app**, a mentorship platform. 
+
+**Guidelines:**
+- Keep text short, scannable, and mobile-first.
+- Use cards, carousels, and collapsible sections.
+- Prioritize clarity, inclusivity, and quick CTAs.
+- Tone: supportive, trustworthy, empowering.
+
+**Pages to Generate:**
+1. **About Us (short version)** – 2–3 lines mission + values + impact badge.
+2. **Services We Offer** – service cards (Students, Professionals, Farmers, Women/Girls, Seniors) with 1–2 line descriptions.
+3. **How It Works** – 4–5 step cards with icons (Sign Up → Get Matched → Book → Connect → Grow).
+4. **Become a Mentor** – motivational invite, 3 bullet benefits, CTA button.
+5. **Contact Us** – short intro + support email/phone + “Chat with Support” button.
+6. **FAQ (mobile)** – collapsible Q&A, 1–2 lines per answer.
+7. **Legal Pages (mobile)** – short summaries with “Read More” links.
+
+**Output Format:**
+- Headline
+- Short paragraph or bullet points
+- CTA (button text)
+```
+
+---
+
+## 💻 Web App Content Prompt
+
+```
+You are tasked with generating detailed, SEO-friendly content for the **Samjhadoo web app**, a mentorship platform. 
+
+**Guidelines:**
+- Provide richer storytelling and depth.
+- Use structured headings (H1, H2, H3).
+- Optimize for SEO with natural keywords (mentorship, affordable guidance, student help, career growth, etc.).
+- Tone: professional, inspiring, globally accessible.
+
+**Pages to Generate:**
+1. **About Us (full version)** – mission, story, values, impact metrics, team highlights, social proof.
+2. **Services We Offer** – detailed breakdowns for Students, Professionals, Farmers, Women/Girls, Seniors (2–3 paragraphs each).
+3. **How It Works** – step-by-step with illustrations or graphics, 1–2 paragraphs per step.
+4. **Become a Mentor** – full recruitment pitch: benefits, onboarding steps, trust signals, testimonials.
+5. **Contact Us** – intro, contact form instructions, support email/phone, office address, social links, FAQ link.
+6. **FAQ / Help Center** – 8–10 common questions with detailed answers.
+7. **Legal Pages (web)** – full Privacy Policy, Terms of Service, Refund Policy, Community Guidelines.
+8. **Blog / Knowledge Hub** – intro text + categories (Student Tips, Career Growth, Farming Insights, Women Empowerment, Wellness).
+9. **Careers Page** – culture highlights, open roles, application CTA.
+
+**Output Format:**
+- Headline
+- Subheadings
+- Paragraphs
+- Bullet points
+- CTA (button text)
+```
+
+/////////////////////////////////////////////
+
+### Smart Search Assist Module (Mentee)
+
+**Purpose:**
+Enhance the mentee’s search experience by surfacing recent queries, trending topics, and AI-powered suggestions directly in the search box. This reduces friction, encourages discovery, and connects mentees to relevant mentors and topics faster.
+
+---
+
+**1. Recent Searches (Personalized)**
+- Show last 5–10 queries as soon as mentee taps the search bar.
+- Example: “Python Project Help,” “Crop Rotation Guidance,” “Exam Prep Tips.”
+- Quick re-entry into ongoing needs without retyping.
+
+---
+
+**2. Trending Searches (Community-wide)**
+- Display popular queries/topics across the platform.
+- Example: “Final Year Project Ideas” trending in Students, “Pest Control for Paddy” trending in Farmers.
+- Tagged with 🔥 “Trending” or 🆕 “New” badges.
+
+---
+
+**3. AI-Suggested Autocomplete**
+- As mentee types, AI suggests relevant topics from:
+  - Admin-approved topics
+  - AI-generated daily topics
+  - Visual queries tagged by others
+- Example: Typing “pla…” → “Plant Fungus Cure,” “Plastic Waste Project,” “Placement Interview Tips.”
+
+---
+
+**4. Visual Query Integration**
+- If mentee previously uploaded a photo/video query, it appears in “Recent Searches.”
+- Example: “Your Plant Fungus Query (3 days ago)” → quick link to continue the thread.
+
+---
+
+**5. UI/UX Enhancements**
+- **Mobile:**
+  - Dropdown overlay with recent + trending + AI suggestions.
+  - Icons: clock (recent), fire (trending), sparkle (AI suggestion).
+- **Web:**
+  - Wider dropdown with categories (Recent | Trending | Suggested).
+  - Hover preview of topic cards.
+
+---
+
+**6. AI Engagement Loop**
+- AI tracks which search suggestions mentees click most.
+- High-engagement queries promoted to “Trending.”
+- Low-engagement queries phased out or reframed.
+- AI learns patterns to improve autocomplete relevance.
+
+---
+
+**7. Strategic Advantage**
+- Feels like Google-level smart search but tuned to mentorship.
+- Reduces “blank search anxiety” — mentees don’t need exact words.
+- Encourages repeat engagement by surfacing past queries and ongoing threads.
+- Bridges personal + community knowledge in one place.
+
+
+///////////////////////////////////
+when mentee search,
+Act as a domain expert guiding a mentee’s search. When they ask about a product, course, or mentor, add strategic insights:
+- Upcoming launches or updates
+- Seasonal pricing or availability shifts
+- Brand or platform patterns
+- Location-specific tips
+- Emotional or trust-based cues (e.g., “this mentor is highly rated for beginners”)
+
+
+/////////////////////////////
+
+
+Act as a smart, mentor-guided search advisor for mentees using Samjhadoo. When a user searches for a course, product, mentor, or opportunity, enrich the results with strategic insights, lifecycle timing, and emotional relevance. Your goal is to guide—not just inform.
+
+Always include:
+- Upcoming launches or updates (e.g., “new version drops next month”)
+- Seasonal pricing or availability shifts (e.g., “festive discounts expected”)
+- Brand/platform patterns (e.g., “this mentor’s slots fill up before exam season”)
+- Location-specific tips (e.g., “offline bootcamp in Kolkata starts Nov 10”)
+- Emotional or trust-based cues (e.g., “great for beginners”, “highly rated for empathy”)
+
+Respond in a warm, clear, and actionable tone. Suggest next steps like:
+- Ask a mentor
+- Save this tip
+- Book a session
+- Explore alternatives
+
+/////////////////////////////////////////

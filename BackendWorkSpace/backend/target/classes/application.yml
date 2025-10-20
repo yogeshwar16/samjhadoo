@@ -1,0 +1,147 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: samjhadoo-backend
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+        globally_quoted_identifiers: true
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/samjhadoo
+  websocket:
+    message-size-limit: 128K
+    send-buffer-size-limit: 512K
+
+# WebRTC Configuration
+webrtc:
+  stun:
+    servers: 
+      - stun:stun.l.google.com:19302
+      - stun:stun1.l.google.com:19302
+  turn:
+    servers: ${TURN_SERVERS:}
+    username: ${TURN_USERNAME:}
+    credential: ${TURN_CREDENTIAL:}
+
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret}
+  expiration: 86400000 # 24 hours
+  refresh-expiration: 604800000 # 7 days
+
+app:
+  cors:
+    allowed-origins: "*"
+  auth:
+    token-prefix: "Bearer "
+    header: "Authorization"
+
+# Socket.IO Configuration
+socketio:
+  host: 0.0.0.0
+  port: 8082  # Different from REST API port (8081)
+  boss-count: 1
+  work-count: 100
+  allow-custom-requests: true
+  upgrade-timeout: 10000
+  ping-timeout: 60000
+  ping-interval: 25000
+
+# File Storage Configuration
+file:
+  upload-dir: uploads
+  recordings-dir: uploads/recordings
+  profiles-dir: uploads/profiles
+  max-size: 104857600  # 100MB in bytes
+
+# Swagger Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+# Logging
+logging:
+  level:
+    org.springframework: INFO
+    com.samjhadoo: DEBUG
+    org.webrtc: INFO
+  file:
+    name: logs/samjhadoo.log
+    max-size: 10MB
+    max-history: 7
+
+# File upload
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# Email configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME:}
+    password: ${EMAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# Firebase Configuration
+firebase:
+  database-url: ${FIREBASE_DATABASE_URL:}
+  credentials:
+    path: classpath:firebase-credentials.json
+
+# AWS S3 Configuration (for file storage)
+aws:
+  s3:
+    bucket-name: samjhadoo-files
+    region: ap-south-1
+    access-key: ${AWS_ACCESS_KEY:}
+    secret-key: ${AWS_SECRET_KEY:}
+
+# AI Gateway Configuration
+ai:
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    temperature: 0.7
+    max-tokens: 1000
+    timeout-seconds: 30
+    model:
+      master: gpt-3.5-turbo
+      agentic: gpt-4
+  rate-limit:
+    master: 10
+    agentic: 50
+    window-duration: 1h
+  cost:
+    gpt4: 0.03
+    gpt35: 0.002
+  retry:
+    max-attempts: 3
+    backoff-ms: 1000
+    multiplier: 2.0
